@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from models.user import User
+from models import User
 
 # app = FastAPI(title="Social Media Scheduler")
 
@@ -16,4 +16,3 @@ from models.user import User
 #     return {"status": "healthy"}
 
 user_one = User()
-user_one.
