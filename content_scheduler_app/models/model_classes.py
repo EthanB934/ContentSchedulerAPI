@@ -13,7 +13,7 @@ class User(Base):
     username = Column(String(155), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     email = Column(String(155), nullable=False, unique=True)
-    created_at = Column(DateTime, nullable=False, server_default=f'{func.current_timestamp}')
+    created_at = Column(DateTime, nullable=True)
     is_admin = Column(Boolean, default=False)
 
 class Format(Base):
@@ -24,7 +24,7 @@ class Format(Base):
 class ScheduledTime(Base):
     __tablename__ = "scheduled_time"
     id = Column(BigInteger, primary_key=True, nullable=False)
-    when = Column(DateTime, nullable=False, server_default=f'{func.current_timestamp}')
+    when = Column(DateTime, nullable=True)
 
 class Platform(Base):
     __tablename__ = "platform"
@@ -41,9 +41,9 @@ class Media(Base):
     id = Column(BigInteger, primary_key=True, nullable=False)
     filepath = Column(String(255))
     caption = Column(String(255))
-    uploaded_at = Column(DateTime, nullable=False, server_default=f'{func.current_timestamp}')
+    uploaded_at = Column(DateTime, nullable=True)
     scheduled_time_id = Column(BigInteger, ForeignKey("scheduled_time.id"), nullable=False)
-    platform_id = Column(BigInteger, ForeignKey("platform.id"), nullable=False)
+    format_id = Column(BigInteger, ForeignKey("format.id"), nullable=False)
     user_id = Column(BigInteger, ForeignKey("user.id"), nullable=False)
 
 class PostStatus(enum.Enum):
@@ -68,5 +68,5 @@ class MediaInteraction(Base):
 
     id = Column(BigInteger, primary_key=True, nullable=False)
     interaction_id = Column(BigInteger, ForeignKey("interaction.id"), nullable=False)
-    media_platform_id = Column(BigInteger, ForeignKey("media_platform"), nullable=False)
+    media_platform_id = Column(BigInteger, ForeignKey("media_platform.id"), nullable=False)
     media_id = Column(BigInteger, ForeignKey("media.id"), nullable=False)

@@ -24,7 +24,7 @@ my_new_media = MediaPlatform(
     platform_id = 1
 )
 
-print(my_new_media.status)
+print(user_one.created_at)
 
 # Define the Enum with either class or function-call syntax
 # Assign the Enum as a value to a column on a table
