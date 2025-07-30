@@ -47,17 +47,26 @@ class Media(Base):
     user_id = Column(BigInteger, ForeignKey("user.id"), nullable=False)
 
 class PostStatus(enum.Enum):
-    Waiting = 1
-    Submitted = 2
-    Pending = 3
-    Posted = 4
-    Cancelled = 5
-    Failed = 6
-    
+    SCHEDULED = 1
+    SUBMITTED = 2
+    PENDING = 3
+    POSTED= 4
+    CANCELLED = 5
+    FAILED = 6
+
 
 class MediaPlatform(Base):
     __tablename__ = "media_platform"
 
     id = Column(BigInteger, primary_key=True, nullable=False)
-    status = Column()
+    status = Column(Enum(PostStatus))
+    media_id = Column(BigInteger, ForeignKey("media.id"), nullable=False)
+    platform_id = Column(BigInteger, ForeignKey("platform.id"), nullable=False)
 
+class MediaInteraction(Base):
+    __tablename__ = "media_interaction"
+
+    id = Column(BigInteger, primary_key=True, nullable=False)
+    interaction_id = Column(BigInteger, ForeignKey("interaction.id"), nullable=False)
+    media_platform_id = Column(BigInteger, ForeignKey("media_platform"), nullable=False)
+    media_id = Column(BigInteger, ForeignKey("media.id"), nullable=False)

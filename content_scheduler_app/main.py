@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from models import User
+from models import User, MediaPlatform, PostStatus
 
 # app = FastAPI(title="Social Media Scheduler")
 
@@ -16,3 +16,18 @@ from models import User
 #     return {"status": "healthy"}
 
 user_one = User()
+
+my_new_media = MediaPlatform(
+    id = 1,
+    status = PostStatus(1),
+    media_id = 1,
+    platform_id = 1
+)
+
+print(my_new_media.status)
+
+# Define the Enum with either class or function-call syntax
+# Assign the Enum as a value to a column on a table
+# When creating that object that stores an Enum value
+# Pass the value of the Enum to the created Enum, either class or by function
+# When accessing that created object's enum property, you will receive the name of that Enum's value
