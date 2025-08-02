@@ -139,7 +139,7 @@ class MediaPlatform(Base):
 
     id = Column(BigInteger, primary_key=True, nullable=False)
     status = Column(Enum(PostStatus))
-    media_id = Column(BigInteger, ForeignKey("media.id"), nullable=False)
+    media_id = Column(BigInteger, ForeignKey("medium.id"), nullable=False)
     platform_id = Column(BigInteger, ForeignKey("platform.id"), nullable=False)
 
 class MediaInteraction(Base):
@@ -149,7 +149,7 @@ class MediaInteraction(Base):
         Describes:
 
             (i.) which type of reaction the medium received
-            (ii.) which media and which platform relationship
+            (ii.) which medium and which platform relationship
     """
     __tablename__ = "media_interaction"
 
