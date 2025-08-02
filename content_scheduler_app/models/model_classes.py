@@ -35,7 +35,7 @@ class User(Base):
     created_at = Column(DateTime, nullable=True)
     is_admin = Column(Boolean, default=False)
 
-class Format(Base):
+class Type(Base):
     """
     The format table. 
     
@@ -43,9 +43,9 @@ class Format(Base):
             (i.) a medium (i.e. video, picture)
     """
     # Might update to contain file extensions instead
-    __tablename__ = "format"
+    __tablename__ = "type"
     id = Column(BigInteger, primary_key=True, nullable=False)
-    format = Column(String(55))
+    type = Column(String(55))
 
 class ScheduledTime(Base):
     """
@@ -83,7 +83,7 @@ class Interaction(Base):
     id = Column(BigInteger, primary_key=True, nullable=False)
     interaction = Column(String(100))
 
-class Medium(Base):
+class Media(Base):
     """
     The medium table.
         Describes:
@@ -94,13 +94,13 @@ class Medium(Base):
             (v.) which user owns it
     """
 
-    __tablename__ = "medium"
+    __tablename__ = "media"
     id = Column(BigInteger, primary_key=True, nullable=False)
     filepath = Column(String(255))
     caption = Column(String(255))
     uploaded_at = Column(DateTime, nullable=True)
     scheduled_time_id = Column(BigInteger, ForeignKey("scheduled_time.id"), nullable=False)
-    format_id = Column(BigInteger, ForeignKey("format.id"), nullable=False)
+    type_id = Column(BigInteger, ForeignKey("type.id"), nullable=False)
     user_id = Column(BigInteger, ForeignKey("user.id"), nullable=False)
 
 class PostStatus(enum.Enum):
@@ -138,8 +138,8 @@ class MediaPlatform(Base):
     __tablename__ = "media_platform"
 
     id = Column(BigInteger, primary_key=True, nullable=False)
-    status = Column(Enum(PostStatus))
-    media_id = Column(BigInteger, ForeignKey("medium.id"), nullable=False)
+    post_status = Column(Enum(PostStatus, name="post_status"))
+    media_id = Column(BigInteger, ForeignKey("media.id"), nullable=False)
     platform_id = Column(BigInteger, ForeignKey("platform.id"), nullable=False)
 
 class MediaInteraction(Base):
