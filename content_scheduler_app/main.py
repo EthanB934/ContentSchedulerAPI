@@ -1,33 +1,21 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from models import User, MediaPlatform, PostStatus
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from .models import User, Platform, Interaction, PostStatus
+from datetime import datetime
 
-# app = FastAPI(title="Social Media Scheduler")
+# Initializes and instance of FastAPI, variable inherits FastAPI properties and methods
+content_scheduler = FastAPI(title="Content Scheduler", version="0.1.0")
 
-# @app.get("/", response_class=HTMLResponse)
-# async def home():
-#     return """
-#         <h1> Social Media Scheduler </h1>
-#         <p> Your portfolio is starting! <p>
-#         """
+# Defines a new route in the API. The route is the string passed to .get()
+@content_scheduler.get("/")
+# Defines asynchronous function to invoke at API root route "/"
+async def root():
+    """
+        This is the home route of the content scheduler app.
+    """
+    return {"message": "Social Media Scheduler API is running!"}
 
-# @app.get("/api/health")
-# async def health_check():
-#     return {"status": "healthy"}
-
-user_one = User()
-
-my_new_media = MediaPlatform(
-    id = 1,
-    status = PostStatus(1),
-    media_id = 1,
-    platform_id = 1
-)
-
-print(user_one.created_at)
-
-# Define the Enum with either class or function-call syntax
-# Assign the Enum as a value to a column on a table
-# When creating that object that stores an Enum value
-# Pass the value of the Enum to the created Enum, either class or by function
-# When accessing that created object's enum property, you will receive the name of that Enum's value
+@content_scheduler.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": datetime.now()}
