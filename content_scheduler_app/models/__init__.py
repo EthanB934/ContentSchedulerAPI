@@ -3,7 +3,8 @@ from .model_classes import Format
 from .model_classes import ScheduledTime
 from .model_classes import Platform
 from .model_classes import Interaction
-from .model_classes import Media
+from .model_classes import Medium
 from .model_classes import MediaPlatform
 from .model_classes import MediaInteraction
 from .model_classes import PostStatus
+from .model_classes import Base
