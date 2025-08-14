@@ -1,9 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy import text
-from .models import User, Platform, Interaction, PostStatus
 from datetime import datetime
-
+from .queries import get_users
 # Initializes and instance of FastAPI, variable inherits FastAPI properties and methods
 content_scheduler = FastAPI(title="Content Scheduler", version="0.1.0")
 
@@ -19,3 +16,7 @@ async def root():
 @content_scheduler.get("/health")
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.now()}
+
+@content_scheduler.get("/users")
+def users():
+    return get_users()
