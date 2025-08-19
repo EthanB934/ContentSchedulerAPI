@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException
 from datetime import datetime
-from .queries import get_users
+from .pydantic_models import UserCreate, UserResponse
+from .queries import get_users, create_user
+
 # Initializes and instance of FastAPI, variable inherits FastAPI properties and methods
 content_scheduler = FastAPI(title="Content Scheduler", version="0.1.0")
 
@@ -18,5 +20,10 @@ async def health_check():
     return {"status": "healthy", "timestamp": datetime.now()}
 
 @content_scheduler.get("/users")
-def users():
+def get_all_users():
     return get_users()
+
+
+@content_scheduler.post("/create-user")
+def create_user_in_database(request: UserCreate):
+    return create_user(request, UserResponse)

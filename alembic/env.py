@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from content_scheduler_app.models import Base
+from content_scheduler_app.database_models import Base
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool

@@ -1,6 +1,5 @@
 import os
 import datetime
-import json
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 
@@ -56,9 +55,54 @@ engine = create_engine(DATABASE_URL, echo=True)
     # ))
 
 def get_users():
-    with engine.begin() as conn:
+    # Creates an open connection to the database
+    with engine.connect() as conn:
+        # Runs SQL expression in PSQL database
         query = conn.execute(
             text("SELECT * FROM content_scheduler.user")
             )
-        users = [dict(row._mapping) for row in query.fetchall()]
+        # Stores all found users 
+        result = query.fetchall()
+
+        # Initializes an empty Python list to contain serialized data.
+        users = []
+
+        # Iterates through Cursor Result objects to being serializing
+        for row in result:
+            # Serializes Cursor Row objects into Python dictionaries
+            users.append(dict(row._mapping))
+
+        # Return the serialized list of user data
         return users
+
+def create_user(request, response):
+    # Creates an open connection to the database
+    with engine.connect() as conn:
+        # Run SQL expression, to create new user
+        query = conn.execute(
+            text("INSERT INTO content_scheduler.user " \
+            "VALUES (:id, :username, :password, :email, :created_at, :is_admin)"
+            "RETURNING id, username, email, created_at, is_admin",),
+            [
+                {
+                    "id": request.id,
+                    "username": request.username,
+                    "password": request.password,
+                    "email": request.email,
+                    "created_at": datetime.datetime.now(),
+                    "is_admin": request.is_admin
+                }
+            ]
+        
+        )
+
+        result = query.fetchone()
+
+        if result:
+            return response(
+                id = result.id,
+                username = result.username,
+                email = result.email,
+                created_at = result.created_at,
+                is_admin = result.is_admin
+            )
