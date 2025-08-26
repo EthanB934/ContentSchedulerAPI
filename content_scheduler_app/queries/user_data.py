@@ -1,8 +1,16 @@
+"""
+This module is responsible for the manipulation of user data, whether creating, reading, updating
+or deleting that data. HTTP requests handled by FastAPI's routing system, where endpoints end in
+*user, should be redirected here and handled. The data received will then be used to manipulate the
+users table in the PostGreSQL database.
+"""
+
 import os
 import datetime
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 
+# 1. Loads any environment variables as global variables to be used within the scope of this module
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -10,64 +18,32 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL is not defined!")
 
+# 2. The database connection string has been retrieved and stored. 
+# A database engine can now be created
 engine = create_engine(DATABASE_URL, echo=True)
 
-# The purpose of the Engine is to connect to the database by providing a Connection object.
-# When working with the Core directly, the Connection object is how all interaction with
-# the database is done. Because the Connection creates an open resource against the database,
-# we want to limit our use of this object to a specific context. The best way to do that is with
-# a Python context manager, also known as the with statement.
-
-# There are two main methods that can be used to create a connection in the engine.
-# (i.) .connect() works as a transaction. The result of the execution is not committed
-#       Really, a ROLLBACK is emitted after the execution resulting in not save of the transaction.
-#       In order to commit this way, the Connection.commit() method must be called after execution.
-# (ii.) .begin() allows for an executed expression to be committed after execution
-
-# with engine.connect() as test:
-    # Once the connection is created to the database
-    # Executes SQL query to database to insert new resource.
-    # test.execute(
-
-        # converts string value to SQL expression value to be executed in database
-        # text returns .textClause object as first argument to SQL expression execute method
-        # text("INSERT INTO content_scheduler.user VALUES (:id, :username, :password, :email, :created_at, :is_admin)",),
-
-        # The second argument of the .execute() method is the data that will
-        # replace the placeholder values in the SQL expression.
-        #     [{
-        #         "id": 1,
-        #         "username": "ethan",
-        #         "password": "abcdefgh",
-        #         "email": "ethan@gmail.com",
-        #         "created_at": datetime.datetime.now(),
-        #         "is_admin": True
-        #     }]
-        # )
-
-    # The values provided have been successfully entered into the database
-    # However, after the SQL expression has executed an INSERT, there is no Result object
-    # To ensure that the values were successfully entered into the database, a second expression
-    # is required. Which is performed directly after, in the same with scope as the first expression
-
-    # result = test.execute(text(
-    #     "SELECT * FROM content_scheduler.user"
-    # ))
-
 def get_users():
+    """
+        GET users will be for used for retrieving a list of all users from the PostGreSQL database.
+    Returns:
+        JSON Serialized List: Since we are querying the database for a list of items, 
+        and because FastAPI handles the JSON serialization of data in the response body, the query
+        will return a JSON serialized list of users objects from PostGreSQL's Result Object.
+    """
     # Creates an open connection to the database
     with engine.connect() as conn:
         # Runs SQL expression in PSQL database
         query = conn.execute(
-            text("SELECT * FROM content_scheduler.user")
-            )
+            text("SELECT * FROM content_scheduler.user" \
+            "RETURNING id, username, email, created_at, is_admin"),)
+        
         # Stores all found users 
         result = query.fetchall()
 
         # Initializes an empty Python list to contain serialized data.
         users = []
 
-        # Iterates through Cursor Result objects to being serializing
+        # Iterates through Cursor Result objects to begin serialization.
         for row in result:
             # Serializes Cursor Row objects into Python dictionaries
             users.append(dict(row._mapping))
@@ -77,12 +53,13 @@ def get_users():
 
 def create_user(request, response):
     # Creates an open connection to the database
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         # Run SQL expression, to create new user
         query = conn.execute(
             text("INSERT INTO content_scheduler.user " \
             "VALUES (:id, :username, :password, :email, :created_at, :is_admin)"
             "RETURNING id, username, email, created_at, is_admin",),
+            # Maps request body data to user properties in database
             [
                 {
                     "id": request.id,
@@ -96,9 +73,12 @@ def create_user(request, response):
         
         )
 
+        # Fetches and stores the newly created user resource
         result = query.fetchone()
 
+        # If result is not none
         if result:
+            # Maps user data from database to pydantic model UserResponse as HTTP response
             return response(
                 id = result.id,
                 username = result.username,

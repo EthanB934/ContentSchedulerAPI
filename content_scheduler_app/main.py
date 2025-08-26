@@ -21,9 +21,24 @@ async def health_check():
 
 @content_scheduler.get("/users")
 def get_all_users():
+    """
+    This route in the API will query the database for all users   
+    """
     return get_users()
 
 
 @content_scheduler.post("/create-user")
 def create_user_in_database(request: UserCreate):
+    """
+    This route in the API will create a user in the database from
+    the provided data in the HTTP request. 
+    Args:
+        request (UserCreate): A Pydantic model to which the request
+        body will be mapped
+
+    Returns:
+        JSON serialized data: the return of the encapsulated function
+        is a JSON serialized body of data that will be mapped to the 
+        UserResponse pydantic model.
+    """
     return create_user(request, UserResponse)
