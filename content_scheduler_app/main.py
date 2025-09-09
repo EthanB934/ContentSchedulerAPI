@@ -1,44 +1,32 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, HTTPException
 from datetime import datetime
-from .pydantic_models import UserCreate, UserResponse
-from .queries import get_users, create_user
+from typing import List
+from .pydantic_models.models import UserCreate, UserResponse
+from .queries.user_data import get_users, create_user
 
-# Initializes and instance of FastAPI, variable inherits FastAPI properties and methods
 content_scheduler = FastAPI(title="Content Scheduler", version="0.1.0")
 
-# Defines a new route in the API. The route is the string passed to .get()
-@content_scheduler.get("/")
-# Defines asynchronous function to invoke at API root route "/"
+@content_scheduler.get("/", tags=["Root"])
 async def root():
-    """
-        This is the home route of the content scheduler app.
-    """
+    """Home route of the content scheduler app."""
     return {"message": "Social Media Scheduler API is running!"}
 
-@content_scheduler.get("/health")
+@content_scheduler.get("/health", tags=["Health"])
 async def health_check():
+    """Health check endpoint."""
     return {"status": "healthy", "timestamp": datetime.now()}
 
-@content_scheduler.get("/users")
+@content_scheduler.get("/users", response_model=List[UserResponse], tags=["Users"])
 def get_all_users():
-    """
-    This route in the API will query the database for all users   
-    """
+    """Retrieve all users from the database."""
     return get_users()
 
-
-@content_scheduler.post("/create-user")
+@content_scheduler.post("/users", response_model=UserResponse, status_code=201, tags=["Users"])
 def create_user_in_database(request: UserCreate):
-    """
-    This route in the API will create a user in the database from
-    the provided data in the HTTP request. 
-    Args:
-        request (UserCreate): A Pydantic model to which the request
-        body will be mapped
+    """Create a new user in the database from the provided data."""
+    return create_user(request)
 
-    Returns:
-        JSON serialized data: the return of the encapsulated function
-        is a JSON serialized body of data that will be mapped to the 
-        UserResponse pydantic model.
-    """
-    return create_user(request, UserResponse)
+@content_scheduler.put("/users/{user_id}", tags=["Users"])
+def update_user_in_db(user_id: int, request: UserCreate):
+    """Update an existing user in the database."""
+    pass
