@@ -76,6 +76,9 @@ def create_user(request: UserCreate) -> UserResponse:
                 }
             )
             result = query.fetchone()
+
+            conn.commit()
+            
             if result:
                 return UserResponse(
                     id=result.id,
