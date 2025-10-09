@@ -4,5 +4,4 @@ __pycache__/
 *.env
 *.env.*
 *.pyc
-*.txt
 .vscode/
