@@ -10,3 +10,5 @@ In order to run this API locally:
 4. This will create a new directory within your current working directory where you have run the command.
 5. In your terminal, change directories to the new ContentSchedulerAPI directory.
 6. You may switch to any branch found listed after `origin/<branch name>`
+
+You may use whichever interactive development environment that you choose. In my case, I am developing this API using VSCode's IDE. Therefore, I run the `code .` command after I changed to the directory containing this repository. 
