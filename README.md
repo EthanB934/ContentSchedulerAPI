@@ -15,3 +15,35 @@ You may use whichever interactive development environment that you choose. In my
 
 This is the current working entity relationship diagram. This diagram lists all of the resources that will be stored within the PostGreSQL database as well as the properties that will be tracked on those resources:
 https://dbdiagram.io/d/Content-Scheduler-68e7256cd2b621e422f7438d
+
+Once the API is successfully cloned, there are still a few more steps necessary to get things rolling.
+1. There is an included `requirements.txt` file. This contains all of the dependencies required in this API
+2. Create a virtual environment within the API project.
+   (a) Run the command `python3 -m venv <filepath to new virtual environment>` MacOS/Linux
+   (b) Run the command `python3 -m venv <filepath to new virtual environment>` Windows
+3. Run the command `pip install -r requirements.txt`. This will install of the required dependencies.
+
+You have successfully installed all of the project's dependiences. There is yet one more step
+This API interacts with a PostGreSQL database. You will first have to install PostGreSQL on locally to your computer.
+The steps I took for Linux were:
+1. `sudo apt update` Updates Linux shell
+2. `sudo apt install postgressql postgresql-contrib` Installs PostGreSQL database
+3. `sudo -u postgresql psql` Starts PostGreSQL with postgresql superuser
+
+Inside of the PSQL prompting:
+1. `CREATE DATABASE <your database name>;`
+2. `CREATE USER <your username> WITH PASSWORD <your password>;`
+3. `GRANT ALL PRIVILEGES ON DATABASE <your database name> TO <your username>;`
+4. `CREATE SCHEMA content_scheduler;` This part is necessary, I have added a schema name to this database, and will be read during it's creation
+   
+These commands will create for you a PostGreSQL user and password locally, it will not interfere with anything remote. The username and password will be used later in the creation of the connection string from the API to the PSQL database.
+
+The API and PostGreSQL database have both been initialized, but now we need to create a global environment variable that contains information to connect to the PSQL database from the Python API
+Here is the template:
+`DATABASE_URL=postgresql://<your username>:<your password>@localhost:5432/<your database name>`
+
+Now that we have the connection string, we can use the Alembic's first version to initialize the PostGreSQL database with all tables, resources, and columns
+`alembic upgrade head`
+
+You can also view this information before committing it by running:
+`alembic upgrade head --sql`
