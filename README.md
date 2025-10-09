@@ -47,3 +47,8 @@ Now that we have the connection string, we can use the Alembic's first version t
 
 You can also view this information before committing it by running:
 `alembic upgrade head --sql`
+
+To ensure that the API is running and the FastAPI's endpoints are working run the uvicorn server:
+`uvicorn content_scheduler_app.main:content_scheduler --reload`
+
+You should see the message that the API is healthy. You may also swap to the endpoint `/users` to retrieve a list of users from the database
