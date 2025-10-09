@@ -12,3 +12,6 @@ In order to run this API locally:
 6. You may switch to any branch found listed after `origin/<branch name>`
 
 You may use whichever interactive development environment that you choose. In my case, I am developing this API using VSCode's IDE. Therefore, I run the `code .` command after I changed to the directory containing this repository. 
+
+This is the current working entity relationship diagram. This diagram lists all of the resources that will be stored within the PostGreSQL database as well as the properties that will be tracked on those resources:
+https://dbdiagram.io/d/Content-Scheduler-68e7256cd2b621e422f7438d
