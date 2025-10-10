@@ -7,12 +7,16 @@ to be distributed to other modules that will perform queries on the database
 # SQLalchemy gives the means to create tables 
 # With datatypes and an in-line declarative base
 # For the database models to inherit
-from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, ForeignKey, Enum 
+from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, ForeignKey, Enum, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 import enum
 
+# Initializes a metadata object for the database schema
+metadata = MetaData(schema="content_scheduler")
+
+
 # Initializes an instance of the Base class that for models' inheritance
-Base = declarative_base()
+Base = declarative_base(metadata=metadata)
 
 class User(Base):
     """ 
@@ -28,7 +32,7 @@ class User(Base):
 
     __tablename__ = "user"
 
-    id = Column(BigInteger, primary_key=True, nullable=False)
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=True)
     username = Column(String(155), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     email = Column(String(155), nullable=False, unique=True)
@@ -44,7 +48,7 @@ class Type(Base):
     """
     # Might update to contain file extensions instead
     __tablename__ = "type"
-    id = Column(BigInteger, primary_key=True, nullable=False)
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=True)
     type = Column(String(55))
 
 class ScheduledTime(Base):
@@ -56,7 +60,7 @@ class ScheduledTime(Base):
     """
 
     __tablename__ = "scheduled_time"
-    id = Column(BigInteger, primary_key=True, nullable=False)
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=True)
     when = Column(DateTime, nullable=True)
 
 class Platform(Base):
@@ -68,7 +72,7 @@ class Platform(Base):
     """
 
     __tablename__ = "platform"
-    id = Column(BigInteger, primary_key=True, nullable=False)
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=True)
     platform = Column(String(55))
 
 class Interaction(Base):
@@ -80,7 +84,7 @@ class Interaction(Base):
     """
 
     __tablename__ = "interaction"
-    id = Column(BigInteger, primary_key=True, nullable=False)
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=True)
     interaction = Column(String(100))
 
 class Media(Base):
@@ -95,7 +99,7 @@ class Media(Base):
     """
 
     __tablename__ = "media"
-    id = Column(BigInteger, primary_key=True, nullable=False)
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=True)
     filepath = Column(String(255))
     caption = Column(String(255))
     uploaded_at = Column(DateTime, nullable=True)
@@ -137,7 +141,7 @@ class MediaPlatform(Base):
 
     __tablename__ = "media_platform"
 
-    id = Column(BigInteger, primary_key=True, nullable=False)
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=True)
     post_status = Column(Enum(PostStatus, name="post_status"))
     media_id = Column(BigInteger, ForeignKey("media.id"), nullable=False)
     platform_id = Column(BigInteger, ForeignKey("platform.id"), nullable=False)
@@ -153,6 +157,6 @@ class MediaInteraction(Base):
     """
     __tablename__ = "media_interaction"
 
-    id = Column(BigInteger, primary_key=True, nullable=False)
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=True)
     interaction_id = Column(BigInteger, ForeignKey("interaction.id"), nullable=False)
     media_platform_id = Column(BigInteger, ForeignKey("media_platform.id"), nullable=False)
