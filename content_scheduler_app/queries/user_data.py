@@ -160,3 +160,24 @@ def update_user_in_db(user_id: int, request: UserCreate):
                 )
             else:
                 raise HTTPException(status_code=404, detail="User not found.")
+            
+def delete_user_from_db(user_id: int):
+    """
+    Delete a user from the database.
+    Args:
+        user_id (int): The ID of the user to delete
+    Raises:
+        HTTPException: If user not found or DB error occurs
+    """
+
+    with engine.connect() as conn:
+        try:
+            query = conn.execute(
+                text("DELETE FROM content_scheduler.user WHERE id = :id"),
+                {"id": user_id}
+            )
+            if query.rowcount == 0:
+                raise HTTPException(status_code=404, detail="User not found.")
+            conn.commit()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
