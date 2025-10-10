@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from datetime import datetime
 from typing import List
-from .pydantic_models.models import UserCreate, UserResponse
-from .queries.user_data import get_users, create_user
+from .pydantic_models import UserCreate, UserResponse
+from .queries import get_users, create_user, get_user_by_id, update_user_in_db
 
 content_scheduler = FastAPI(title="Content Scheduler", version="0.1.0")
 
@@ -26,7 +26,12 @@ def create_user_in_database(request: UserCreate):
     """Create a new user in the database from the provided data."""
     return create_user(request)
 
-@content_scheduler.put("/users/{user_id}", tags=["Users"])
-def update_user_in_db(user_id: int, request: UserCreate):
+@content_scheduler.get("/users/{user_id}", tags=["Users"])
+def get_user(user_id: int, request: UserCreate):
     """Update an existing user in the database."""
-    pass
+    return get_user_by_id(user_id)
+
+@content_scheduler.put("/users/{user_id}", tags=["Users"])
+def update_user(user_id: int, request: UserCreate):
+    """Update an existing user in the database."""
+    return update_user_in_db(user_id, request)

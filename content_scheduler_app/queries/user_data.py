@@ -12,7 +12,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.exc import IntegrityError
 from passlib.context import CryptContext
 from fastapi import HTTPException
-from ..pydantic_models.models import UserCreate, UserResponse
+from ..pydantic_models import UserCreate, UserResponse
 
 # 1. Loads any environment variables as global variables to be used within the scope of this module
 load_dotenv()
@@ -45,6 +45,31 @@ def get_users():
         result = query.fetchall()
         users = [dict(row._mapping) for row in result]
         return users
+
+def get_user_by_id(user_id: int) -> UserResponse:
+    """
+    Retrieve a user by their ID from the database.
+    Args:
+        user_id (int): The ID of the user to retrieve
+    Returns:
+        UserResponse: The user object (without password)
+    """
+    with engine.connect() as conn:
+        query = conn.execute(
+            text("SELECT id, username, email, created_at, is_admin FROM content_scheduler.user WHERE id = :id"),
+            {"id": user_id}
+        )
+        result = query.fetchone()
+        if result:
+            return UserResponse(
+                id=result.id,
+                username=result.username,
+                email=result.email,
+                created_at=result.created_at,
+                is_admin=result.is_admin
+            )
+        else:
+            raise HTTPException(status_code=404, detail="User not found.")
 
 def create_user(request: UserCreate) -> UserResponse:
     """
@@ -93,3 +118,45 @@ def create_user(request: UserCreate) -> UserResponse:
             raise HTTPException(status_code=400, detail="User with this email or username already exists.")
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+        
+def update_user_in_db(user_id: int, request: UserCreate):
+    """
+    Update an existing user in the database.
+    Args:
+        user_id (int): The ID of the user to update
+        request (UserCreate): The new data for the user
+    Returns:
+        UserResponse: The updated user (without password)
+    """
+    with engine.connect() as conn:
+            query = conn.execute(
+                text(
+                    """
+                    UPDATE content_scheduler.user
+                    SET username = :username,
+                        email = :email,
+                        is_admin = :is_admin
+                    WHERE id = :id
+                    RETURNING id, username, email, created_at, is_admin
+                    """
+                ),
+                {
+                    "id": user_id,
+                    "username": request.username,
+                    "email": request.email,
+                    "is_admin": request.is_admin
+                }
+            )
+            result = query.fetchone()
+            conn.commit()
+
+            if result:
+                return UserResponse(
+                    id=result.id,
+                    username=result.username,
+                    email=result.email,
+                    created_at=result.created_at,
+                    is_admin=result.is_admin
+                )
+            else:
+                raise HTTPException(status_code=404, detail="User not found.")
