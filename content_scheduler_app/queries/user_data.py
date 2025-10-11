@@ -32,6 +32,34 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
+def login_user(form_data) -> UserResponse:
+    """
+    Authenticate a user based on the provided form data.
+    Args:
+        form_data (OAuth2PasswordRequestForm): The form data containing username and password
+    Returns:
+        UserResponse: The authenticated user object (without password)
+    Raises:
+        HTTPException: If authentication fails
+    """
+
+    with engine.connect() as conn:
+        query = conn.execute(
+            text("SELECT id, username, password, email, created_at, is_admin FROM content_scheduler.user WHERE username = :username"),
+            {"username": form_data.username}
+        )
+        result = query.fetchone()
+        if result and pwd_context.verify(form_data.password, result.password):
+            return UserResponse(
+                id=result.id,
+                username=result.username,
+                email=result.email,
+                created_at=result.created_at,
+                is_admin=result.is_admin
+            )
+        else:
+            raise HTTPException(status_code=401, detail="Invalid username or password.")
+
 def get_users():
     """
     Retrieve a list of all users from the PostGreSQL database.

@@ -1,40 +1,27 @@
 from fastapi import FastAPI, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
 from datetime import datetime
 from typing import List
 from pydantic import BaseModel
 from .pydantic_models import UserCreate, UserResponse
-from .queries import get_users, create_user, get_user_by_id, update_user_in_db, delete_user_from_db
+from .queries import get_users, create_user, get_user_by_id, update_user_in_db, delete_user_from_db, login_user
 
 content_scheduler = FastAPI(title="Content Scheduler", version="0.1.0")
 
-def get_token():
-    print("Token endpoint called")
-    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-    return oauth2_scheme
+# Declares the endpoint for token generation
+# Is a dependency that can be used in path operations
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-class User(BaseModel):
-    username: str
-    email: str | None = None
-    full_name: str | None = None
-    disabled: bool | None = None
+# Path operation to authenticate users
+# The dependency defines the security scheme
+# Handles JSON requests for user authentication
+# Does not handle Docs Form Data
+content_scheduler.get("/authenticate", tags=["Authentication"])
+async def authenticate(token: Annotated[str, Depends(oauth2_scheme)]):
+    """Endpoint to authenticate users using OAuth2 token."""
+    return {"token": token}
 
-
-def fake_decode_token(token):
-    print(type(token))
-    return User(
-        username=token + "fakedecoded", email="john@example.com", full_name="John Doe"
-    )
-
-
-async def get_current_user(token: Annotated[str, Depends(get_token)]):
-    user = fake_decode_token(token)
-    return user
-
-@content_scheduler.get("/users/me")
-async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
-    return current_user
 
 @content_scheduler.get("/", tags=["Root"])
 async def root():
